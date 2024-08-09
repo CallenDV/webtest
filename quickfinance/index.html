@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Management Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/shoelace-autoloader.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">Financial Management Tool</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Budget Tracker</h2>
+                <sl-input label="Income" type="number" id="income"></sl-input>
+                <sl-input label="Expenses" type="number" id="expenses"></sl-input>
+                <sl-button variant="primary" id="calculateBudget" class="mt-2">Calculate</sl-button>
+                <p id="budgetResult" class="mt-2"></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Savings Goal</h2>
+                <sl-input label="Goal Amount" type="number" id="goalAmount"></sl-input>
+                <sl-input label="Monthly Contribution" type="number" id="monthlyContribution"></sl-input>
+                <sl-button variant="primary" id="calculateSavings" class="mt-2">Calculate</sl-button>
+                <p id="savingsResult" class="mt-2"></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Loan Calculator</h2>
+                <sl-input label="Loan Amount" type="number" id="loanAmount"></sl-input>
+                <sl-input label="Interest Rate (%)" type="number" id="interestRate"></sl-input>
+                <sl-input label="Loan Term (years)" type="number" id="loanTerm"></sl-input>
+                <sl-button variant="primary" id="calculateLoan" class="mt-2">Calculate</sl-button>
+                <p id="loanResult" class="mt-2"></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Investment Tracker</h2>
+                <sl-input label="Initial Investment" type="number" id="initialInvestment"></sl-input>
+                <sl-input label="Annual Return (%)" type="number" id="annualReturn"></sl-input>
+                <sl-input label="Investment Period (years)" type="number" id="investmentPeriod"></sl-input>
+                <sl-button variant="primary" id="calculateInvestment" class="mt-2">Calculate</sl-button>
+                <p id="investmentResult" class="mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculateBudget').addEventListener('click', () => {
+            const income = parseFloat(document.getElementById('income').value);
+            const expenses = parseFloat(document.getElementById('expenses').value);
+            const result = income - expenses;
+            document.getElementById('budgetResult').textContent = `Net Income: $${result.toFixed(2)}`;
+        });
+
+        document.getElementById('calculateSavings').addEventListener('click', () => {
+            const goal = parseFloat(document.getElementById('goalAmount').value);
+            const monthly = parseFloat(document.getElementById('monthlyContribution').value);
+            const months = Math.ceil(goal / monthly);
+            document.getElementById('savingsResult').textContent = `Months to reach goal: ${months}`;
+        });
+
+        document.getElementById('calculateLoan').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+            const term = parseFloat(document.getElementById('loanTerm').value) * 12;
+            const monthly = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+            document.getElementById('loanResult').textContent = `Monthly Payment: $${monthly.toFixed(2)}`;
+        });
+
+        document.getElementById('calculateInvestment').addEventListener('click', () => {
+            const initial = parseFloat(document.getElementById('initialInvestment').value);
+            const rate = parseFloat(document.getElementById('annualReturn').value) / 100;
+            const years = parseFloat(document.getElementById('investmentPeriod').value);
+            const final = initial * Math.pow(1 + rate, years);
+            document.getElementById('investmentResult').textContent = `Final Amount: $${final.toFixed(2)}`;
+        });
+    </script>
+</body>
+</html>
