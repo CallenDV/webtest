@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockCheck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-3xl">
+        <h1 class="text-3xl font-bold mb-6 text-center">Tech Stock Checker</h1>
+        <div class="mb-4 flex">
+            <input type="text" id="stockSymbol" placeholder="Enter stock symbol (e.g., AAPL)" class="w-full p-2 rounded-l bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500">
+            <button id="checkStock" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700">Check</button>
+        </div>
+        <div id="stockInfo" class="bg-gray-800 p-4 rounded-lg hidden">
+            <h2 id="companyName" class="text-xl font-semibold mb-2"></h2>
+            <p id="price" class="text-2xl font-bold mb-2"></p>
+            <p id="change" class="text-lg"></p>
+            <p id="dataSource" class="text-sm text-gray-400 mt-2"></p>
+        </div>
+        <div id="error" class="bg-red-600 text-white p-4 rounded-lg mt-4 hidden"></div>
+    </div>
+
+    <script>
+        const stockSymbolInput = document.getElementById('stockSymbol');
+        const checkStockButton = document.getElementById('checkStock');
+        const stockInfo = document.getElementById('stockInfo');
+        const companyNameElement = document.getElementById('companyName');
+        const priceElement = document.getElementById('price');
+        const changeElement = document.getElementById('change');
+        const dataSourceElement = document.getElementById('dataSource');
+        const errorElement = document.getElementById('error');
+
+        checkStockButton.addEventListener('click', checkStock);
+
+        async function checkStock() {
+            const symbol = stockSymbolInput.value.trim().toUpperCase();
+            if (!symbol) {
+                showError('Please enter a valid stock symbol.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}`);
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                const data = await response.json();
+                updateStockInfo(symbol, data.c, data.d, data.dp, true);
+            } catch (error) {
+                console.error('Failed to fetch real-time data:', error);
+                const mockData = getMockStockData(symbol);
+                if (mockData) {
+                    updateStockInfo(symbol, mockData.price, mockData.change, mockData.changePercent, false);
+                } else {
+                    showError('Stock symbol not found in our mock data.');
+                }
+            }
+        }
+
+        function getMockStockData(symbol) {
+            const mockData = {
+                'AAPL': { price: 150.25, change: 2.75, changePercent: 1.86 },
+                'GOOGL': { price: 2750.50, change: -15.30, changePercent: -0.55 },
+                'MSFT': { price: 305.75, change: 5.20, changePercent: 1.73 },
+                'AMZN': { price: 3300.00, change: -25.50, changePercent: -0.77 },
+                'META': { price: 330.80, change: 8.60, changePercent: 2.67 }
+            };
+            return mockData[symbol] || null;
+        }
+
+        function updateStockInfo(symbol, price, change, changePercent, isRealTime) {
+            companyNameElement.textContent = symbol;
+            priceElement.textContent = `$${price.toFixed(2)}`;
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePercent.toFixed(2)}%)`;
+            changeElement.className = change >= 0 ? 'text-green-500' : 'text-red-500';
+            dataSourceElement.textContent = isRealTime ? 
+                'Data from Finnhub API' : 
+                'Note: Using offline data. This may not reflect the most recent stock information.';
+            stockInfo.classList.remove('hidden');
+            errorElement.classList.add('hidden');
+        }
+
+        function showError(message) {
+            stockInfo.classList.add('hidden');
+            errorElement.textContent = `Error: ${message}`;
+            errorElement.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
